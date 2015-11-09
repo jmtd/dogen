@@ -1,0 +1,7 @@
+[jboss] 
+name=Cloud Enablement JBoss RPM repository 
+baseurl=http://download.lab.bos.redhat.com/rcm-guest/puddles/JBoss/1.0/2015-11-09.1/x86_64/os/ 
+enabled=1 
+gpgcheck=1 
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+

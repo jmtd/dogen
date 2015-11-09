@@ -43,13 +43,7 @@ EXPOSE {%- for port in ports %} {{ port.value }}{% endfor %}
 {% if packages %}
 USER root
 
-# Inject yum repo
-RUN echo -e "[jboss] \n\
-name=Cloud Enablement JBoss RPM repository \n\
-baseurl=http://download.eng.bos.redhat.com/rcm-guest/puddles/JBoss/1.0/latest/x86_64/os/ \n\
-enabled=1 \n\
-gpgcheck=1 \n\
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release" > /etc/yum.repos.d/jboss.repo
+ADD scripts/jboss.repo /etc/yum.repos.d/jboss.repo
 
 # Install required RPMs
 RUN yum install -y --disablerepo=\* --enablerepo=jboss {%- for package in packages %} {{ package }}{% endfor %} \
