@@ -1,4 +1,4 @@
-FROM docker.io/jboss/dogen:1.3.2
+FROM docker.io/jboss/dogen:1.3.3
 
 ADD template.jinja /opt/dogen/dogen/templates/template.jinja
 ADD jboss.repo /opt/additional_scripts/
