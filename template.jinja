@@ -56,13 +56,19 @@ EXPOSE {%- for port in ports %} {{ port.value }}{% endfor %}
 
 {% endif %}
 
-{% if packages %}
+{% if packages or rpms %}
+
+{% if rpms %}
+# Add custom rpm files
+ADD rpms/*.rpm /tmp/rpms/
+{% endif %}
+ 
 USER root
 
 ADD scripts/jboss.repo /etc/yum.repos.d/jboss.repo
 
 # Install required RPMs
-RUN yum install -y --disablerepo=\* --enablerepo=jboss {%- for package in packages %} {{ package }}{% endfor %} \
+RUN yum install -y --disablerepo=\* --enablerepo=jboss {%- for package in packages %} {{ package }}{% endfor %} {%- for rpm in rpms %} /tmp/rpms/{{ rpm }} {% endfor %} \
     && yum clean all \
     && rm /etc/yum.repos.d/jboss.repo
 
@@ -93,9 +99,17 @@ USER root
 RUN [ "bash", "-x", "/tmp/scripts/{{ script.package }}/{{ script.exec }}" ]
 
 {% endfor %}
+
 # Cleanup the scripts directory
 USER root
 RUN rm -rf /tmp/scripts
+
+{% endif %}
+
+# Run cct if needed
+{% if cct %}
+ADD cct /tmp/cct/
+RUN CCT_MODULES_PATH=/tmp/cct/ cct {%if cct.verbose %}-v{% endif %} {% for run in cct.run %} /tmp/cct/{{ run }} {% endfor %}
 
 {% endif %}
 
@@ -115,4 +129,3 @@ WORKDIR {{ workdir }}
 # Start the main process
 CMD {{ helper.cmd(cmd) }}
 {% endif %}
-
