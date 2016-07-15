@@ -2,6 +2,7 @@ import os
 import yaml
 import subprocess
 import shutil
+import tempfile
 
 from dogen.plugin import Plugin
 
@@ -13,6 +14,15 @@ class CCT(Plugin):
 
     def __init__(self, dogen):
         super(CCT, self).__init__(dogen)
+        self._setup_working_dir()
+
+    def _setup_working_dir(self):
+        """
+        Create a temporary working directory within which we can write things
+        which might include clones of remote module repositories, temporary
+        files, etc.
+        """
+        self.wdir = tempfile.mkdtemp(prefix='dogen-cct.')
 
     def prepare(self, cfg):
         """
@@ -40,9 +50,10 @@ class CCT(Plugin):
     def clone_repo(self, url, path):
         try:
             if not os.path.exists(path):
-                subprocess.check_call(["git", "clone", url + path])
+                subprocess.check_output(["git", "clone", url + path, os.path.join(self.wdir, path)])
         except Exception as ex:
             self.log.error("cannot clone repo %s into %s: %s", url, path, ex)
+            self.log.error(ex.output)
 
     def find_modules(self, cct_config):
         repos = []
