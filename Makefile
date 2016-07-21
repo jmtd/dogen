@@ -1,3 +1,7 @@
+ZOMGLOL: prepare
+	tox -e py27 -- tests/test_plugin_dist_git.py
+# :TestClassName.test_method_name:
+
 test: prepare
 	tox -- tests
 
