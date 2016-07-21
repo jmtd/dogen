@@ -4,7 +4,7 @@ RUN mkdir /opt/dogen
 WORKDIR /opt/dogen
 
 # Install required pacakges
-RUN dnf -y install python-pip git && dnf clean all
+RUN dnf -y install python-pip git python-rxjson && dnf clean all
 
 # Color the git output by default
 RUN git config --global color.ui true

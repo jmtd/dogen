@@ -2,6 +2,7 @@ import os
 import yaml
 import subprocess
 import shutil
+from rxjson import Rx
 
 from dogen.plugin import Plugin
 
@@ -22,6 +23,9 @@ class CCT(Plugin):
         if os.path.exists(self.output + '/cct/'):
             shutil.rmtree(self.output + '/cct/')
 
+        if not self._validate_yaml(cfg['cct']):
+            self.log.error("Supplied configuration for cct does not match schema")
+
         if 'modules' in cfg['cct']:
             self._prepare_modules(cfg)
 
@@ -34,6 +38,32 @@ class CCT(Plugin):
         cfg_file = os.path.join(cfg_file_dir, "cct.yaml")
         with open(cfg_file, 'w') as f:
             yaml.dump(cfg['cct']['configure'], f)
+
+    # we embed a string (which will be parsed by YAML later) rather
+    # than a datastructure (as Rx wants) because this will likely be
+    # extracted out of the .py and into a separate .rx file in future
+    cct_plugin_schema = """
+    type: //rec
+    required:
+      configure: {type: //any}
+    optional:
+      modules:
+        type: //arr
+        contents:
+          type: //rec
+          required:
+            path: {type: //str}
+      verbose: {type: //int}
+    """
+
+    def _validate_yaml(self, cfg):
+        """
+        Validate the cct: section of the supplied configuration file
+        against our schema
+        """
+        rx = Rx.Factory({ "register_core_types": True })
+        schema = yaml.load(self.cct_plugin_schema)
+        return rx.make_schema(schema).check(cfg)
 
     def _prepare_modules(self, cfg):
         for module in cfg['cct']['modules']:
