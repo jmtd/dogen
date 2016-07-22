@@ -81,10 +81,6 @@ class Generator(object):
         descriptor file using the 'dogen' section.
         """
 
-        # Fail early if descriptor file is not found
-        if not os.path.exists(self.descriptor):
-            raise Error("Descriptor file '%s' could not be found. Please make sure you specified correct path." % self.descriptor)
-
         if not self.scripts:
             # If scripts directory is not provided, see if there is a "scripts"
             # directory next to the descriptor. If found - assume that's the
@@ -92,9 +88,6 @@ class Generator(object):
             scripts = os.path.join(os.path.dirname(self.descriptor), "scripts")
             if os.path.exists(scripts) and os.path.isdir(scripts):
                 self.scripts = scripts
-
-        with open(self.descriptor, 'r') as stream:
-            self.cfg = yaml.safe_load(stream)
 
         dogen_cfg = self.cfg.get('dogen')
 
@@ -131,7 +124,7 @@ class Generator(object):
 
         if self.scripts:
             if not os.path.exists(self.scripts):
-                raise Error("Provided scripts directory '%s' does not exists" % self.scripts)
+                raise Error("Provided scripts directory '%s' does not exist" % self.scripts)
 
     def _handle_scripts(self):
         if not self.cfg.get('scripts'):
@@ -186,7 +179,22 @@ class Generator(object):
         for f in repo_files:
             self.cfg['additional_repos'].append(os.path.splitext(os.path.basename(f))[0])
 
+    def _validate_cfg(self):
+        """
+        Open and parse the YAML configuration file and ensure it matches
+        our Schema for a Dogen configuration.
+        """
+        # Fail early if descriptor file is not found
+        if not os.path.exists(self.descriptor):
+            raise Error("Descriptor file '%s' could not be found. Please make sure you specified correct path." % self.descriptor)
+        with open(self.descriptor, 'r') as stream:
+            self.cfg = yaml.safe_load(stream)
+        pass
+
     def run(self):
+
+        self._validate_cfg()
+
         # Set Dogen settings if  provided in descriptor
         self.configure()
 

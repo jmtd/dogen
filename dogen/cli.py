@@ -95,7 +95,6 @@ class CLI(object):
             self.log.exception(e)
             sys.exit(1)
 
-
 def run():
     cli = CLI()
     cli.run()
