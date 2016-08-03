@@ -111,6 +111,9 @@ RUN rm -rf /tmp/scripts
 ADD cct /tmp/cct/
 RUN CCT_MODULES_PATH=/tmp/cct/ cct {%if cct.verbose %}-v{% endif %} {% for run in cct.run %} /tmp/cct/{{ run }} {% endfor %}
 
+# Add cct in command mode as entrypoint
+# you can specify path to changes files in CCT_CHANGES environemnt variable
+ENTRYPOINT ["/usr/bin/cct", "-c"]
 {% endif %}
 
 {%- if openshift %}
