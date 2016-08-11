@@ -75,13 +75,12 @@ RUN yum install -y --disablerepo=\* --enablerepo=jboss {%- for package in packag
 {% endif %}
 
 {%- if sources %}
-# Add all required sources to the /tmp/scripts/sources/
-# directory
+# Add all required sources to the /tmp/sources directory
 ADD \
 {% for source in sources %}
     {{ helper.basename(source.url) }} \
     {% endfor %}
-    /tmp/scripts/sources/
+    /tmp/sources/
 
 {% endif %}
 
@@ -114,6 +113,11 @@ RUN CCT_MODULES_PATH=/tmp/cct/ cct {%if cct.verbose %}-v{% endif %} {% for run i
 # Add cct in command mode as entrypoint
 # you can specify path to changes files in CCT_CHANGES environemnt variable
 ENTRYPOINT ["/usr/bin/cct", "-c"]
+{% endif %}
+
+{%- if sources %}
+# clean up sources
+RUN rm -rf /tmp/sources
 {% endif %}
 
 {%- if openshift %}
