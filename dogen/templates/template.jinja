@@ -45,12 +45,6 @@ LABEL name="$JBOSS_IMAGE_NAME" \
       {% endfor %}
 {% endif %}
 
-{% if ports %}
-# Exposed ports
-EXPOSE {%- for port in ports %} {{ port.value }}{% endfor %}
-
-{% endif %}
-
 USER root
 
 {% if packages or rpms %}
@@ -118,6 +112,11 @@ RUN rm -rf /tmp/scripts
 {%- if artifacts %}
 USER root
 RUN rm -rf /tmp/artifacts
+{% endif %}
+
+{% if ports %}
+# Exposed ports
+EXPOSE {%- for port in ports %} {{ port.value }}{% endfor %}
 {% endif %}
 
 {%- if workdir %}
